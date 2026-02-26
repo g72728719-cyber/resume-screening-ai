@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Resume Screening AI</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; color: #333; max-width: 900px; margin: 0 auto; padding: 2rem; }
+        h1 { color: #0066cc; }
+        .contact-section { background: #f0f7ff; padding: 2rem; border-radius: 8px; margin: 2rem 0; }
+        .contact-item { margin: 1.5rem 0; }
+        .contact-item strong { color: #0066cc; }
+        form { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        input, textarea { width: 100%; padding: 0.8rem; margin: 0.5rem 0 1rem 0; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; }
+        button { background: #0066cc; color: white; padding: 1rem 2rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #0052a3; }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <a href="/">← Back to Home</a>
+    
+    <h1>Contact Us</h1>
+    <p>Have questions or feedback? We'd love to hear from you!</p>
+    
+    <div class="contact-section">
+        <h2>Get in Touch</h2>
+        
+        <div class="contact-item">
+            <strong>📧 Email:</strong><br>
+            <a href="mailto:support@resumescreeningai.com">support@resumescreeningai.com</a>
+        </div>
+        
+        <div class="contact-item">
+            <strong>💼 For Business Inquiries:</strong><br>
+            <a href="mailto:business@resumescreeningai.com">business@resumescreeningai.com</a>
+        </div>
+        
+        <div class="contact-item">
+            <strong>🌍 Global Support:</strong><br>
+            Available 24/7 for all queries related to Resume Screening AI
+        </div>
+    </div>
+    
+    <h2>Send us a Message</h2>
+    <form action="/contact" method="POST">
+        <div>
+            <label for="name"><strong>Name</strong></label><br>
+            <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div>
+            <label for="email"><strong>Email</strong></label><br>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div>
+            <label for="subject"><strong>Subject</strong></label><br>
+            <input type="text" id="subject" name="subject" required>
+        </div>
+        
+        <div>
+            <label for="message"><strong>Message</strong></label><br>
+            <textarea id="message" name="message" rows="5" required></textarea>
+        </div>
+        
+        <button type="submit">Send Message</button>
+    </form>
+    
+    <h2>Frequently Asked Questions</h2>
+    <div style="background: #f9f9f9; padding: 2rem; border-radius: 8px;">
+        <h3>How long is the free trial?</h3>
+        <p>The free trial is for 1 full month. After that, you can continue with ₹29/month subscription.</p>
+        
+        <h3>Can I cancel anytime?</h3>
+        <p>Yes! You can cancel your subscription anytime with no penalties or hidden fees.</p>
+        
+        <h3>How accurate is the AI screening?</h3>
+        <p>Our AI maintains 95%+ accuracy in matching resumes to job requirements. It uses advanced machine learning trained on thousands of recruitment datasets.</p>
+        
+        <h3>Is my data secure?</h3>
+        <p>Yes, we use enterprise-grade encryption and never store credit card data. Resumes are deleted after processing.</p>
+        
+        <h3>Do you offer support?</h3>
+        <p>Yes, we offer 24/7 email support for all customers. Just reach out to support@resumescreeningai.com</p>
+    </div>
+</body>
+</html>

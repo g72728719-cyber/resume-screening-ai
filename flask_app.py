@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for, flash
 import os
 import logging
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from werkzeug.utils import secure_filename
 from io import BytesIO
 from datetime import datetime, timedelta
@@ -602,6 +605,24 @@ def sitemap():
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
+    <url>
+        <loc>https://resume-screening-ai-h1fv.onrender.com/privacy</loc>
+        <lastmod>2026-02-26</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://resume-screening-ai-h1fv.onrender.com/terms</loc>
+        <lastmod>2026-02-26</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://resume-screening-ai-h1fv.onrender.com/contact</loc>
+        <lastmod>2026-02-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
 </urlset>'''
     return Response(sitemap_xml, mimetype='application/xml')
 
@@ -611,6 +632,78 @@ def blog_screening_guide():
     """Blog post about resume screening best practices"""
     return render_template('blog_screening_guide.html')
 
+
+# ---- Legal Pages ----
+@app.route('/privacy')
+def privacy():
+    """Privacy Policy page"""
+    return render_template('privacy.html')
+
+
+@app.route('/terms')
+def terms():
+    """Terms of Service page"""
+    return render_template('terms.html')
+
+
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    """Contact Us page with form handling"""
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        subject = request.form.get('subject', '').strip()
+        message = request.form.get('message', '').strip()
+        
+        if not all([name, email, subject, message]):
+            flash('All fields are required.', 'danger')
+            return redirect(url_for('contact'))
+        
+        # Send email to support
+        smtp_host = os.environ.get('SMTP_HOST')
+        smtp_port = int(os.environ.get('SMTP_PORT', 587))
+        smtp_user = os.environ.get('SMTP_USER')
+        smtp_pass = os.environ.get('SMTP_PASS')
+        
+        if smtp_host and smtp_user and smtp_pass:
+            try:
+                # Create email message
+                msg = MIMEMultipart()
+                msg['From'] = smtp_user
+                msg['To'] = 'support@resumescreeningai.com'
+                msg['Subject'] = f"Contact Form: {subject}"
+                
+                body = f"""
+New contact form submission:
+
+Name: {name}
+Email: {email}
+Subject: {subject}
+
+Message:
+{message}
+"""
+                msg.attach(MIMEText(body, 'plain'))
+                
+                # Send email
+                with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as s:
+                    s.starttls()
+                    s.login(smtp_user, smtp_pass)
+                    s.sendmail(smtp_user, 'support@resumescreeningai.com', msg.as_string())
+                
+                logger.info(f"Contact form received from {email}")
+                flash('Thank you! We have received your message. We will get back to you soon.', 'success')
+                return redirect(url_for('index'))
+            except Exception as exc:
+                logger.error(f"Failed to send contact email: {exc}")
+                flash('Failed to send message. Please try again later.', 'danger')
+        else:
+            # Fallback: just log it
+            logger.info(f"Contact form received from {name} ({email}): {subject} - {message}")
+            flash('Thank you! We have received your message. We will get back to you soon.', 'success')
+            return redirect(url_for('index'))
+    
+    return render_template('contact.html')
 
 
 if __name__ == '__main__':
