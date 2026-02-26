@@ -9,4 +9,5 @@ gunicorn==25.1.0
 # 0.7.0 is not available; use latest 0.6.x series which works with Flask 3
 flask-login==0.6.3
 flask-sqlalchemy==3.0.5
-razorpay==1.4.0
+# version 1.4.0 not on PyPI; use latest 2.x
+razorpay==2.0.0
