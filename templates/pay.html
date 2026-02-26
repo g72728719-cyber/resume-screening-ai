@@ -9,9 +9,45 @@
     <div class="auth-container">
         <h2>Subscribe</h2>
         <p>Your trial has expired or you are signing up for full access. ₹29 for one month.</p>
-        <form method="post" action="/pay">
-            <button type="submit" class="analyze-btn">Pay ₹29</button>
-        </form>
+        {% if order %}
+            <!-- Razorpay checkout button will be auto-clicked via script -->
+            <button id="rzp-button" class="analyze-btn">Proceed to Payment</button>
+            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+            <script>
+                var options = {
+                    "key": "{{ key_id }}",
+                    "amount": "{{ order.amount }}",
+                    "currency": "INR",
+                    "name": "Resume Screening Subscription",
+                    "order_id": "{{ order.id }}",
+                    "handler": function (response){
+                        // post back to payment-success
+                        var form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/payment-success';
+                        var fields = ['razorpay_payment_id','razorpay_order_id','razorpay_signature'];
+                        fields.forEach(function(f){
+                            var inp = document.createElement('input');
+                            inp.type = 'hidden';
+                            inp.name = f;
+                            inp.value = response[f];
+                            form.appendChild(inp);
+                        });
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                };
+                document.getElementById('rzp-button').onclick = function(e){
+                    var rzp = new Razorpay(options);
+                    rzp.open();
+                    e.preventDefault();
+                }
+            </script>
+        {% else %}
+            <form method="post" action="/pay">
+                <button type="submit" class="analyze-btn">Pay ₹29</button>
+            </form>
+        {% endif %}
     </div>
 </body>
 </html>

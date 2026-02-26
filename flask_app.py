@@ -11,7 +11,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-import stripe
+import razorpay
 
 from resume_parser import extract_text_from_pdf
 from scorer import score_resume, parse_analysis, generate_optimized_resume, enforce_full_score
@@ -30,8 +30,9 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# stripe configuration (set STRIPE_API_KEY in env)
-stripe.api_key = os.environ.get('STRIPE_API_KEY', '')
+# razorpay configuration (set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in env)
+razorpay_client = razorpay.Client(auth=(os.environ.get('RAZORPAY_KEY_ID',''),
+                                         os.environ.get('RAZORPAY_KEY_SECRET','')))
 
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -263,32 +264,23 @@ def logout():
 
 @app.route('/pay', methods=['GET', 'POST'])
 def pay():
-    """Simple payment page using Stripe Checkout"""
+    """Payment page using Razorpay order+checkout"""
     if request.method == 'POST':
-        # create checkout session
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'inr',
-                    'product_data': {
-                        'name': 'Resume Screening Subscription',
-                    },
-                    'unit_amount': 2900,  # ₹29.00
-                },
-                'quantity': 1,
-            }],
-            mode='payment',
-            success_url=url_for('payment_success', _external=True),
-            cancel_url=url_for('pay', _external=True),
-            customer_email=current_user.email if current_user.is_authenticated else None,
-        )
-        return redirect(session.url, code=303)
+        # create razorpay order
+        amount_paise = 2900  # ₹29
+        order = razorpay_client.order.create({
+            'amount': amount_paise,
+            'currency': 'INR',
+            'payment_capture': '1'
+        })
+        # pass order to template for checkout
+        return render_template('pay.html', order=order, key_id=os.environ.get('RAZORPAY_KEY_ID',''))
     return render_template('pay.html')
 
-@app.route('/payment-success')
+@app.route('/payment-success', methods=['POST'])
 def payment_success():
-    # update user paid_until
+    # webhook/callback from Razorpay
+    # expected form: razorpay_payment_id, razorpay_order_id, razorpay_signature
     if current_user.is_authenticated:
         current_user.paid_until = datetime.utcnow() + timedelta(days=30)
         db.session.commit()
@@ -461,6 +453,12 @@ def health():
     """Health check endpoint"""
     return jsonify({'status': 'ok'})
 
+# create database tables if they don't exist
+@app.before_first_request
+def initialize_database():
+    db.create_all()
+
 if __name__ == '__main__':
     logger.info("Starting Resume Screening AI Flask application...")
+    db.create_all()
     app.run(debug=True, host='0.0.0.0', port=5000)
