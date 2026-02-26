@@ -7,6 +7,15 @@
 </head>
 <body>
     <div class="auth-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" style="padding: 1rem; margin-bottom: 1rem; border-radius: 4px; {% if category == 'danger' %}background: #ffebee; border-left: 4px solid #f44336; color: #c62828;{% elif category == 'warning' %}background: #fff3e0; border-left: 4px solid #ff9800; color: #e65100;{% elif category == 'success' %}background: #e8f5e9; border-left: 4px solid #4caf50; color: #2e7d32;{% else %}background: #e3f2fd; border-left: 4px solid #2196f3; color: #1565c0;{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <h2>Login</h2>
         <form method="post" action="/login">
             <label>Email</label><br>

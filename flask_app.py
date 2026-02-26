@@ -406,6 +406,19 @@ def login():
         flash('Invalid credentials', 'danger')
     return render_template('login.html')
 
+@app.route('/verify')
+def verify():
+    """Verify page for users who haven't verified their email yet"""
+    pending_user_id = session.get('pending_user_id')
+    if not pending_user_id:
+        return redirect(url_for('login'))
+    
+    user = User.query.get(int(pending_user_id))
+    if not user:
+        return redirect(url_for('login'))
+    
+    return render_template('verify.html', email=user.email)
+
 @app.route('/logout')
 def logout():
     logout_user()

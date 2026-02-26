@@ -1,23 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
     <title>Verify Email - Resume Screening AI</title>
-    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            color: #1565c0;
+            text-align: center;
+        }
+        .warning-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .button-group a {
+            flex: 1;
+            padding: 0.8rem;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+        .primary-btn {
+            background: #0066cc;
+            color: white;
+        }
+        .primary-btn:hover {
+            background: #0052a3;
+        }
+        .secondary-btn {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        .secondary-btn:hover {
+            background: #e0e0e0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Email Verification</h2>
-        <p>Please enter the 6-digit code sent to your email address.</p>
-        <form method="POST">
-            <label for="email">Email (optional if you registered just now)</label><br />
-            <input type="email" name="email" id="email" /><br /><br />
-            <label for="code">Verification Code</label><br />
-            <input type="text" name="code" id="code" maxlength="6" required /><br /><br />
-            <button type="submit" class="btn">Verify</button>
-        </form>
-        <p>If you didn't receive the email, <a href="/resend-otp">resend the code</a> or check your spam folder. You may also <a href="/register">register again</a>.</p>
+    <div class="auth-container">
+        <a href="/" class="back-link">← Back to Home</a>
+        
+        <div class="warning-icon">⏳</div>
+        
+        <h2>Email Verification Required</h2>
+        
+        <div class="info-box">
+            <p><strong>A verification link was sent to:</strong></p>
+            <p style="font-size: 1.1rem; margin: 1rem 0;">{{ email }}</p>
+            <p style="margin-top: 1rem; font-size: 0.95rem;">Click the link in your email to verify your account and access the app.</p>
+        </div>
+        
+        <div style="background: #f9f9f9; padding: 1rem; border-radius: 4px; margin: 1.5rem 0; font-size: 0.9rem;">
+            <p><strong>💡 Link expires in 24 hours</strong></p>
+            <p style="margin-top: 0.5rem;">The verification link is valid for 24 hours. If it expires, you'll need to register again.</p>
+        </div>
+        
+        <div class="button-group">
+            <a href="/login" class="secondary-btn">Back to Login</a>
+            <a href="/register" class="primary-btn">Register Again</a>
+        </div>
     </div>
 </body>
 </html>
