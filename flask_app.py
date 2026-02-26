@@ -1,13 +1,17 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for, flash
 import os
 import logging
 from werkzeug.utils import secure_filename
 from io import BytesIO
-from datetime import datetime
+from datetime import datetime, timedelta
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+import stripe
 
 from resume_parser import extract_text_from_pdf
 from scorer import score_resume, parse_analysis, generate_optimized_resume, enforce_full_score
@@ -15,6 +19,22 @@ from scorer import score_resume, parse_analysis, generate_optimized_resume, enfo
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['UPLOAD_FOLDER'] = 'temp_uploads'
+
+# configuration for database and authentication
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'devsecret')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# initialize extensions
+db = SQLAlchemy(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+
+# stripe configuration (set STRIPE_API_KEY in env)
+stripe.api_key = os.environ.get('STRIPE_API_KEY', '')
+
+# Ensure upload folder exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Configure logging
 logging.basicConfig(
@@ -25,6 +45,39 @@ logger = logging.getLogger(__name__)
 
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# --- user model -----------------------------------------------------------
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    paid_until = db.Column(db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=30))
+
+    def is_active(self):
+        # override to enforce subscription
+        if self.paid_until and datetime.utcnow() > self.paid_until:
+            return False
+        return True
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# helper to require subscription
+from functools import wraps
+
+def subscription_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for('login'))
+        if not current_user.is_active():
+            flash('Your trial or subscription has expired. Please pay to continue.', 'warning')
+            return redirect(url_for('pay'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 
 def ensure_skills_in_resume(resume_text, missing_skills):
@@ -169,9 +222,82 @@ def text_to_pdf(text_content):
 @app.route('/')
 def index():
     """Render the main page"""
+    # show login/register links if not authenticated
     return render_template('index.html')
 
+# ---------- authentication routes ----------------------------------------
+from werkzeug.security import generate_password_hash, check_password_hash
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered', 'danger')
+            return redirect(url_for('register'))
+        user = User(email=email, password_hash=generate_password_hash(password))
+        db.session.add(user)
+        db.session.commit()
+        login_user(user)
+        flash('Account created. You have one month free.', 'success')
+        return redirect(url_for('index'))
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password_hash, password):
+            login_user(user)
+            return redirect(url_for('index'))
+        flash('Invalid credentials', 'danger')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/pay', methods=['GET', 'POST'])
+def pay():
+    """Simple payment page using Stripe Checkout"""
+    if request.method == 'POST':
+        # create checkout session
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'inr',
+                    'product_data': {
+                        'name': 'Resume Screening Subscription',
+                    },
+                    'unit_amount': 2900,  # ₹29.00
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=url_for('payment_success', _external=True),
+            cancel_url=url_for('pay', _external=True),
+            customer_email=current_user.email if current_user.is_authenticated else None,
+        )
+        return redirect(session.url, code=303)
+    return render_template('pay.html')
+
+@app.route('/payment-success')
+def payment_success():
+    # update user paid_until
+    if current_user.is_authenticated:
+        current_user.paid_until = datetime.utcnow() + timedelta(days=30)
+        db.session.commit()
+        flash('Payment received! Subscription extended 30 days.', 'success')
+    return redirect(url_for('index'))
+
+
 @app.route('/analyze', methods=['POST'])
+@subscription_required
 def analyze():
     """Analyze uploaded resumes against job description"""
     try:
@@ -237,6 +363,7 @@ def analyze():
 
 
 @app.route('/extract-resume-text', methods=['POST'])
+@subscription_required
 def extract_resume_text():
     """Extract text from a resume PDF"""
     try:
@@ -272,6 +399,7 @@ def extract_resume_text():
 
 
 @app.route('/generate-resume', methods=['POST'])
+@subscription_required
 def generate_resume_endpoint():
     """Generate an optimized resume that includes missing skills"""
     try:

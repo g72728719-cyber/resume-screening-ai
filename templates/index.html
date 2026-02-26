@@ -13,7 +13,7 @@
     <div class="grain-overlay"></div>
 
     <div class="container">
-        <!-- Header -->
+        <!-- Header and auth links -->
         <header class="header">
             <div class="header-content">
                 <h1 class="site-title">
@@ -22,6 +22,15 @@
                 </h1>
                 <p class="site-subtitle">First-level candidate analysis powered by advanced AI</p>
             </div>
+            <div class="header-right">
+                {% if current_user.is_authenticated %}
+                    <span class="welcome-text">Hello, {{ current_user.email }}</span>
+                    <a href="/logout" class="nav-link">Logout</a>
+                {% else %}
+                    <a href="/login" class="nav-link">Login</a>
+                    <a href="/register" class="nav-link">Register</a>
+                {% endif %}
+            </div>
             <div class="header-decoration"></div>
         </header>
 
@@ -29,6 +38,7 @@
         <div class="main-grid">
             <!-- Left Panel: Controls -->
             <aside class="controls-panel">
+                {% if current_user.is_authenticated and current_user.is_active() %}
                 <div class="panel-card">
                     <div class="panel-header">
                         <h2>Job Requirements</h2>
@@ -49,6 +59,17 @@
                     </div>
 
                     <div class="upload-zone" id="uploadZone">
+                {% else %}
+                <div class="panel-card">
+                    <p style="padding:2rem;text-align:center;">
+                        {% if not current_user.is_authenticated %}
+                            Please <a href="/login">log in</a> or <a href="/register">register</a> to use the screening tool.
+                        {% else %}
+                            Your trial or subscription has expired. <a href="/pay">Subscribe for ₹29/month</a>.
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
                         <input
                             type="file"
                             id="fileInput"

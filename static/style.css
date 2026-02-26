@@ -40,6 +40,29 @@ body {
     position: relative;
 }
 
+/* Navigation links */
+.header-right {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+.nav-link {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+.nav-link:hover {
+    color: var(--color-accent);
+}
+.welcome-text {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
 /* Grain texture overlay */
 .grain-overlay {
     position: fixed;
@@ -59,6 +82,34 @@ body {
     padding: 2rem;
     position: relative;
     z-index: 1;
+}
+
+/* auth forms styling */
+.auth-container {
+    max-width: 400px;
+    margin: 6rem auto;
+    background: var(--color-surface);
+    padding: 2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+}
+.auth-container input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+.auth-container label {
+    display: block;
+    margin-bottom: 0.25rem;
+    text-align: left;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
 }
 
 /* ===== Header ===== */
