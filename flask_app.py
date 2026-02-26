@@ -294,25 +294,67 @@ from flask import session
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        # Check if this is OTP verification or initial registration
+        otp_code = request.form.get('otp_code')
+        
+        if otp_code:
+            # Verifying OTP during registration
+            if 'pending_user_id' not in session:
+                flash('Session expired. Please register again.', 'danger')
+                return render_template('register.html')
+            
+            user = User.query.get(session['pending_user_id'])
+            if not user:
+                flash('User not found. Please register again.', 'danger')
+                return render_template('register.html')
+            
+            # Check OTP validity (10 minutes)
+            if user.otp_code == otp_code and user.otp_sent_at and datetime.utcnow() - user.otp_sent_at < timedelta(minutes=10):
+                user.is_verified = True
+                user.otp_code = None
+                user.otp_sent_at = None
+                db.session.commit()
+                login_user(user)
+                flash('Email verified! Welcome to Resume Screening AI.', 'success')
+                session.pop('pending_user_id', None)
+                return redirect(url_for('index'))
+            else:
+                flash('Invalid or expired OTP. Please try again.', 'danger')
+                return render_template('register.html', show_otp_form=True, pending_email=session.get('pending_email'))
+        
+        # Initial registration
         email = request.form.get('email')
         password = request.form.get('password')
+        
+        if not email or not password:
+            flash('Email and password are required.', 'danger')
+            return render_template('register.html')
+        
         if User.query.filter_by(email=email).first():
-            flash('Email already registered', 'danger')
-            return redirect(url_for('register'))
-        # create user with one-month trial automatically via default
+            flash('Email already registered. Please log in instead.', 'danger')
+            return render_template('register.html')
+        
+        # Create user with one-month trial
         user = User(email=email, password_hash=generate_password_hash(password))
-        # generate OTP for verification
-        import random
+        
+        # Generate OTP
         code = f"{random.randint(0,999999):06d}"
         user.otp_code = code
         user.otp_sent_at = datetime.utcnow()
+        
         db.session.add(user)
         db.session.commit()
+        
+        # Send OTP email
         send_otp_email(email, code)
+        
+        # Store in session
         session['pending_user_id'] = user.id
-        # for development show the code in the flash as well
-        flash(f'Account created. Your verification code is {code}. Check your email.', 'info')
-        return redirect(url_for('verify'))
+        session['pending_email'] = email
+        
+        flash(f'Account created! Check your email for the verification code. For development, your code is: {code}', 'info')
+        return render_template('register.html', show_otp_form=True, pending_email=email)
+    
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -556,7 +598,7 @@ def verify():
 
 @app.route('/resend-otp')
 def resend_otp():
-    # resend code to pending or logged-in unverified user
+    # Resend code to pending or logged-in unverified user
     user = None
     if 'pending_user_id' in session:
         user = User.query.get(session['pending_user_id'])
@@ -564,12 +606,19 @@ def resend_otp():
         user = current_user
     if not user:
         return redirect(url_for('login'))
+    
     code = f"{random.randint(0,999999):06d}"
     user.otp_code = code
     user.otp_sent_at = datetime.utcnow()
     db.session.commit()
     send_otp_email(user.email, code)
-    flash(f'Verification code resent. Code: {code}', 'info')
+    
+    flash(f'Verification code resent to {user.email}. For development, code is: {code}', 'info')
+    
+    # If this is during registration, return to register page with OTP form
+    if 'pending_user_id' in session:
+        return render_template('register.html', show_otp_form=True, pending_email=user.email)
+    # If user is logged in but unverified, go to verify page
     return redirect(url_for('verify'))
 
 @app.route('/health')
