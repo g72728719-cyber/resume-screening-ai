@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Email - Resume Screening AI</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <div class="container">
+        <h2>Email Verification</h2>
+        <p>Please enter the 6-digit code sent to your email address.</p>
+        <form method="POST">
+            <label for="email">Email (optional if you registered just now)</label><br />
+            <input type="email" name="email" id="email" /><br /><br />
+            <label for="code">Verification Code</label><br />
+            <input type="text" name="code" id="code" maxlength="6" required /><br /><br />
+            <button type="submit" class="btn">Verify</button>
+        </form>
+        <p>If you didn't receive the email, <a href="/resend-otp">resend the code</a> or check your spam folder. You may also <a href="/register">register again</a>.</p>
+    </div>
+</body>
+</html>

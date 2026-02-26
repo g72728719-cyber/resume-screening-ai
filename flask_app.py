@@ -44,6 +44,23 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+def send_otp_email(recipient, code):
+    """Send OTP to the user's email address.
+    This example logs the code; configure SMTP via environment variables to send real mail.
+    """
+    logger.info(f"Sending OTP {code} to {recipient}")
+    # Uncomment and configure the following for real email delivery:
+    # smtp_host = os.environ.get('SMTP_HOST')
+    # smtp_port = int(os.environ.get('SMTP_PORT', 587))
+    # smtp_user = os.environ.get('SMTP_USER')
+    # smtp_pass = os.environ.get('SMTP_PASS')
+    # message = f"Subject: [Resume AI] Your verification code\n\nYour code is {code}."
+    # with smtplib.SMTP(smtp_host, smtp_port) as s:
+    #     s.starttls()
+    #     s.login(smtp_user, smtp_pass)
+    #     s.sendmail(smtp_user, recipient, message)
+
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -54,6 +71,11 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     paid_until = db.Column(db.DateTime, default=lambda: datetime.utcnow() + timedelta(days=30))
+
+    # verification
+    is_verified = db.Column(db.Boolean, default=False)
+    otp_code = db.Column(db.String(6), nullable=True)
+    otp_sent_at = db.Column(db.DateTime, nullable=True)
 
     def is_active(self):
         # override to enforce subscription
@@ -228,6 +250,8 @@ def index():
 
 # ---------- authentication routes ----------------------------------------
 from werkzeug.security import generate_password_hash, check_password_hash
+import random, smtplib
+from flask import session
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -237,12 +261,19 @@ def register():
         if User.query.filter_by(email=email).first():
             flash('Email already registered', 'danger')
             return redirect(url_for('register'))
+        # create user with one-month trial automatically via default
         user = User(email=email, password_hash=generate_password_hash(password))
+        # generate OTP for verification
+        import random
+        code = f"{random.randint(0,999999):06d}"
+        user.otp_code = code
+        user.otp_sent_at = datetime.utcnow()
         db.session.add(user)
         db.session.commit()
-        login_user(user)
-        flash('Account created. You have one month free.', 'success')
-        return redirect(url_for('index'))
+        send_otp_email(email, code)
+        session['pending_user_id'] = user.id
+        flash('Account created. Check your email for a 6‑digit verification code.', 'info')
+        return redirect(url_for('verify'))
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -252,6 +283,10 @@ def login():
         password = request.form.get('password')
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password_hash, password):
+            if not user.is_verified:
+                flash('Please verify your email before logging in.', 'warning')
+                session['pending_user_id'] = user.id
+                return redirect(url_for('verify'))
             login_user(user)
             return redirect(url_for('index'))
         flash('Invalid credentials', 'danger')
@@ -260,11 +295,14 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
+    session.pop('pending_user_id', None)
     return redirect(url_for('index'))
 
 @app.route('/pay', methods=['GET', 'POST'])
 def pay():
     """Payment page using Razorpay order+checkout"""
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
     if request.method == 'POST':
         # create razorpay order
         amount_paise = 2900  # ₹29
@@ -448,6 +486,53 @@ def generate_resume_endpoint():
         return jsonify({'error': f'Failed to generate resume: {str(e)}'}), 500
 
 
+@app.route('/verify', methods=['GET', 'POST'])
+def verify():
+    """Email verification endpoint (enter OTP code)"""
+    if request.method == 'POST':
+        code = request.form.get('code')
+        email = request.form.get('email')
+        user = None
+        if 'pending_user_id' in session:
+            user = User.query.get(session['pending_user_id'])
+        if not user and email:
+            user = User.query.filter_by(email=email).first()
+        if not user:
+            flash('No pending verification found.', 'danger')
+            return redirect(url_for('register'))
+        # check code and expiration (10 minutes)
+        if user.otp_code == code and user.otp_sent_at and datetime.utcnow() - user.otp_sent_at < timedelta(minutes=10):
+            user.is_verified = True
+            user.otp_code = None
+            user.otp_sent_at = None
+            db.session.commit()
+            login_user(user)
+            flash('Email verified! Welcome and enjoy your trial.', 'success')
+            session.pop('pending_user_id', None)
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid or expired code.', 'danger')
+    return render_template('verify.html')
+
+
+@app.route('/resend-otp')
+def resend_otp():
+    # resend code to pending or logged-in unverified user
+    user = None
+    if 'pending_user_id' in session:
+        user = User.query.get(session['pending_user_id'])
+    elif current_user.is_authenticated and not current_user.is_verified:
+        user = current_user
+    if not user:
+        return redirect(url_for('login'))
+    code = f"{random.randint(0,999999):06d}"
+    user.otp_code = code
+    user.otp_sent_at = datetime.utcnow()
+    db.session.commit()
+    send_otp_email(user.email, code)
+    flash('Verification code resent to your email.', 'info')
+    return redirect(url_for('verify'))
+
 @app.route('/health')
 def health():
     """Health check endpoint"""
@@ -457,6 +542,15 @@ def health():
 # Flask 3 removed before_first_request; ensure tables are created at import time
 with app.app_context():
     db.create_all()
+    # if we've added new columns for verification, alter table accordingly
+    inspector = db.inspect(db.engine)
+    cols = [c['name'] for c in inspector.get_columns('user')]
+    if 'is_verified' not in cols:
+        db.engine.execute('ALTER TABLE user ADD COLUMN is_verified BOOLEAN DEFAULT 0')
+    if 'otp_code' not in cols:
+        db.engine.execute('ALTER TABLE user ADD COLUMN otp_code VARCHAR(6)')
+    if 'otp_sent_at' not in cols:
+        db.engine.execute('ALTER TABLE user ADD COLUMN otp_sent_at DATETIME')
 
 if __name__ == '__main__':
     logger.info("Starting Resume Screening AI Flask application...")

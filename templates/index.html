@@ -25,6 +25,12 @@
             <div class="header-right">
                 {% if current_user.is_authenticated %}
                     <span class="welcome-text">Hello, {{ current_user.email }}</span>
+                    {% if current_user.paid_until %}
+                        <span class="nav-link">(access until {{ current_user.paid_until.strftime('%Y-%m-%d') }})</span>
+                    {% endif %}
+                    {% if not current_user.is_verified %}
+                        <span class="nav-link" style="color:orange;">(verify your email)</span>
+                    {% endif %}
                     <a href="/logout" class="nav-link">Logout</a>
                 {% else %}
                     <a href="/login" class="nav-link">Login</a>
@@ -64,6 +70,8 @@
                     <p style="padding:2rem;text-align:center;">
                         {% if not current_user.is_authenticated %}
                             Please <a href="/login">log in</a> or <a href="/register">register</a> to use the screening tool.
+                        {% elif not current_user.is_verified %}
+                            Please verify your email <a href="/verify">here</a> to activate your trial.
                         {% else %}
                             Your trial or subscription has expired. <a href="/pay">Subscribe for ₹29/month</a>.
                         {% endif %}
