@@ -87,12 +87,16 @@
             <h2>Create an Account</h2>
             <p style="color: #666; margin-bottom: 1rem;">Register and get 1 month free trial with full access</p>
             
+            <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 0.8rem; margin-bottom: 1rem; border-radius: 4px; color: #1565c0; font-size: 0.9rem;">
+                <strong>✓ Gmail Required:</strong> Please use a valid Gmail account (example@gmail.com) to register.
+            </div>
+            
             <form method="post" action="/register">
-                <label for="email"><strong>Email Address</strong></label><br>
-                <input type="email" id="email" name="email" required placeholder="your-email@example.com"><br>
+                <label for="email"><strong>Gmail Address</strong></label><br>
+                <input type="email" id="email" name="email" required placeholder="your-email@gmail.com" pattern=".*@gmail\.com"><br>
                 
                 <label for="password"><strong>Password</strong></label><br>
-                <input type="password" id="password" name="password" required placeholder="Enter a strong password"><br>
+                <input type="password" id="password" name="password" required placeholder="At least 6 characters" minlength="6"><br>
                 
                 <button type="submit">Register & Get Verification Code</button>
             </form>

@@ -330,18 +330,28 @@ from flask import session
 def register():
     if request.method == 'POST':
         # Initial registration
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '').strip()
         
         if not email or not password:
             flash('Email and password are required.', 'danger')
+            return render_template('register.html')
+        
+        # Validate Gmail address
+        if not email.endswith('@gmail.com'):
+            flash('❌ Only Gmail addresses are allowed. Please use a valid Gmail account (example@gmail.com).', 'danger')
             return render_template('register.html')
         
         if User.query.filter_by(email=email).first():
             flash('Email already registered. Please log in instead.', 'danger')
             return render_template('register.html')
         
-        # Create user
+        # Validate password strength
+        if len(password) < 6:
+            flash('Password must be at least 6 characters long.', 'danger')
+            return render_template('register.html')
+        
+        # Create user with hashed password stored in database
         user = User(email=email, password_hash=generate_password_hash(password))
         
         # Generate simple verification token
@@ -393,17 +403,32 @@ def verify_email(token):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '').strip()
+        
+        if not email or not password:
+            flash('Email and password are required.', 'danger')
+            logger.warning(f"Login attempt with missing credentials")
+            return render_template('login.html')
+        
+        # Look up user in database by email
         user = User.query.filter_by(email=email).first()
+        
+        # Verify stored password hash matches the provided password
         if user and check_password_hash(user.password_hash, password):
             if not user.is_verified:
                 flash('Please verify your email before logging in.', 'warning')
                 session['pending_user_id'] = user.id
+                logger.info(f"User {email} attempted login before email verification")
                 return redirect(url_for('verify'))
             login_user(user)
+            logger.info(f"User {email} successfully logged in")
+            flash(f'Welcome back, {email}!', 'success')
             return redirect(url_for('index'))
-        flash('Invalid credentials', 'danger')
+        
+        # Invalid credentials
+        logger.warning(f"Failed login attempt for {email}")
+        flash('❌ Invalid email or password. Please check and try again.', 'danger')
     return render_template('login.html')
 
 @app.route('/verify')
