@@ -255,8 +255,10 @@ def text_to_pdf(text_content):
 
 @app.route('/')
 def index():
-    """Render the main page"""
-    # show login/register links if not authenticated
+    """Render the main page or landing page"""
+    # show landing page to unauthenticated users
+    if not current_user.is_authenticated:
+        return render_template('landing.html')
     return render_template('index.html')
 
 # ---------- authentication routes ----------------------------------------
@@ -563,6 +565,40 @@ with app.app_context():
         db.engine.execute('ALTER TABLE user ADD COLUMN otp_code VARCHAR(6)')
     if 'otp_sent_at' not in cols:
         db.engine.execute('ALTER TABLE user ADD COLUMN otp_sent_at DATETIME')
+
+
+# ---- SEO Routes ----
+@app.route('/robots.txt')
+def robots():
+    return send_file('robots.txt', mimetype='text/plain')
+
+
+@app.route('/sitemap.xml')
+def sitemap():
+    from flask import Response
+    sitemap_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://resume-screening-ai-h1fv.onrender.com/</loc>
+        <lastmod>2026-02-26</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://resume-screening-ai-h1fv.onrender.com/register</loc>
+        <lastmod>2026-02-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://resume-screening-ai-h1fv.onrender.com/login</loc>
+        <lastmod>2026-02-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+</urlset>'''
+    return Response(sitemap_xml, mimetype='application/xml')
+
 
 if __name__ == '__main__':
     logger.info("Starting Resume Screening AI Flask application...")

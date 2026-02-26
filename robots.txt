@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /register
+Allow: /login
+
+Disallow: /temp_uploads/
+Disallow: /dashboard/admin
+
+Sitemap: https://resume-screening-ai-h1fv.onrender.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
