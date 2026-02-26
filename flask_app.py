@@ -638,60 +638,6 @@ def generate_resume_endpoint():
         return jsonify({'error': f'Failed to generate resume: {str(e)}'}), 500
 
 
-@app.route('/verify', methods=['GET', 'POST'])
-def verify():
-    """Email verification endpoint (enter OTP code)"""
-    if request.method == 'POST':
-        code = request.form.get('code')
-        email = request.form.get('email')
-        user = None
-        if 'pending_user_id' in session:
-            user = User.query.get(session['pending_user_id'])
-        if not user and email:
-            user = User.query.filter_by(email=email).first()
-        if not user:
-            flash('No pending verification found.', 'danger')
-            return redirect(url_for('register'))
-        # check code and expiration (10 minutes)
-        if user.otp_code == code and user.otp_sent_at and datetime.utcnow() - user.otp_sent_at < timedelta(minutes=10):
-            user.is_verified = True
-            user.otp_code = None
-            user.otp_sent_at = None
-            db.session.commit()
-            login_user(user)
-            flash('Email verified! Welcome and enjoy your trial.', 'success')
-            session.pop('pending_user_id', None)
-            return redirect(url_for('index'))
-        else:
-            flash('Wrong code, retype', 'danger')
-    return render_template('verify.html')
-
-
-@app.route('/resend-otp')
-def resend_otp():
-    # Resend code to pending or logged-in unverified user
-    user = None
-    if 'pending_user_id' in session:
-        user = User.query.get(session['pending_user_id'])
-    elif current_user.is_authenticated and not current_user.is_verified:
-        user = current_user
-    if not user:
-        return redirect(url_for('login'))
-    
-    code = f"{random.randint(0,999999):06d}"
-    user.otp_code = code
-    user.otp_sent_at = datetime.utcnow()
-    db.session.commit()
-    send_otp_email(user.email, code)
-    
-    flash(f'Verification code resent to {user.email}. For development, code is: {code}', 'info')
-    
-    # If this is during registration, return to register page with OTP form
-    if 'pending_user_id' in session:
-        return render_template('register.html', show_otp_form=True, pending_email=user.email)
-    # If user is logged in but unverified, go to verify page
-    return redirect(url_for('verify'))
-
 @app.route('/health')
 def health():
     """Health check endpoint"""
