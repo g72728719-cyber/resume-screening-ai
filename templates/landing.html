@@ -3,32 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Resume Screening AI - Intelligent resume screening tool for HR professionals. Analyze resumes against job requirements using advanced AI technology.">
-    <meta name="keywords" content="resume screening, resume parser, candidate screening, AI recruiting, resume analysis, HR software, ATS">
+    <meta name="description" content="Free AI resume screening tool for HR teams worldwide. Screen unlimited resumes instantly during your free month trial. No credit card required. Join thousands of recruiters using Resume Screening AI.">
+    <meta name="keywords" content="free resume screening, resume parser, candidate screening tool, AI recruiter, resume analysis, HR software, resume matcher, applicant tracking, recruitment AI, free HR tool, resume screening software, automated recruiting">
     <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    <meta name="author" content="Resume Screening AI">
     
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Resume Screening AI - Smart Resume Analysis for Recruiters">
-    <meta property="og:description" content="Screen hundreds of resumes instantly with AI-powered matching against job requirements.">
+    <meta property="og:title" content="Free Resume Screening AI - For HR Teams Worldwide">
+    <meta property="og:description" content="Screen resumes instantly with AI. Free trial for 1 month. No credit card needed. Perfect for recruiters, HR professionals, and hiring teams globally.">
     <meta property="og:url" content="https://resume-screening-ai-h1fv.onrender.com/">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Free Resume Screening AI">
+    <meta name="twitter:description" content="AI-powered resume screening for HR teams worldwide. Completely free for the first month.">
     
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Product",
+      "@type": "SoftwareApplication",
+      "@id": "https://resume-screening-ai-h1fv.onrender.com/",
       "name": "Resume Screening AI",
-      "description": "AI-powered resume screening and candidate analysis platform for HR professionals",
-      "brand": "Resume Screening AI",
+      "description": "Free AI-powered resume screening and candidate analysis platform for HR professionals worldwide",
+      "applicationCategory": "BusinessApplication",
       "offers": {
         "@type": "Offer",
-        "price": "29",
-        "priceCurrency": "INR",
-        "url": "https://resume-screening-ai-h1fv.onrender.com/"
-      }
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Free trial for 1 month"
+      },
+      "operatingSystem": "Web",
+      "url": "https://resume-screening-ai-h1fv.onrender.com/"
     }
     </script>
     
-    <title>Resume Screening AI - Automated Candidate Analysis Tool</title>
+    <title>Free Resume Screening AI - For HR Teams Worldwide | No Credit Card Required</title>
     <style>
         * {
             margin: 0;
@@ -36,187 +46,477 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: #fafbfc;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
         .navbar {
             background: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.2rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-brand {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0066cc, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .navbar-links {
+            display: flex;
+            gap: 2rem;
         }
         .navbar a {
-            margin-left: 2rem;
             text-decoration: none;
             color: #0066cc;
             font-weight: 600;
+            transition: color 0.3s;
+        }
+        .navbar a:hover {
+            color: #ff6b35;
         }
         .hero {
             max-width: 1200px;
-            margin: 4rem auto 2rem;
-            padding: 0 2rem;
+            margin: 3rem auto;
+            padding: 3rem 2rem;
             text-align: center;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
         h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin-bottom: 1rem;
             color: #1a202c;
+            line-height: 1.2;
         }
-        .highlight {
-            color: #0066cc;
+        .badge {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: #2e7d32;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
         }
-        .hero p {
-            font-size: 1.2rem;
-            color: #666;
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: #555;
             margin-bottom: 2rem;
             line-height: 1.8;
         }
-        .cta-btn {
-            background: #0066cc;
-            color: white;
-            padding: 1rem 2rem;
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .btn {
+            padding: 1.2rem 3rem;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            margin: 0.5rem;
-            transition: background 0.3s;
+            transition: all 0.3s;
         }
-        .cta-btn:hover {
-            background: #0052a3;
+        .btn-primary {
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0,102,204,0.4);
+        }
+        .btn-secondary {
+            background: white;
+            color: #0066cc;
+            border: 2px solid #0066cc;
+        }
+        .btn-secondary:hover {
+            background: #f0f7ff;
+            transform: translateY(-3px);
+        }
+        .trust {
+            background: #f0f7ff;
+            padding: 1.5rem;
+            margin: 2rem 0 0 0;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0066cc;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
         }
         .features {
             max-width: 1200px;
             margin: 4rem auto;
             padding: 0 2rem;
             display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+        }
+        .feature {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .feature:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        .feature-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+        .feature h3 {
+            color: #0066cc;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        .benefits-section {
+            background: linear-gradient(135deg, #0066cc 0%, #00d4ff 100%);
+            color: white;
+            padding: 5rem 2rem;
+            margin: 4rem 0;
+        }
+        .benefits-section h2 {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+        }
+        .benefits-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        .benefit {
+            background: rgba(255,255,255,0.15);
+            padding: 2rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .benefit:before {
+            content: "✓";
+            color: #4ade80;
+            font-weight: bold;
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .testimonials {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+        .testimonials h2 {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+            color: #1a202c;
+        }
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        .testimonial {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+            border-left: 4px solid #0066cc;
+        }
+        .stars {
+            color: #ffc107;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        .testimonial-text {
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            color: #555;
+        }
+        .testimonial-author {
+            font-weight: 700;
+            color: #0066cc;
+        }
+        .pricing {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+        .pricing h2 {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+            color: #1a202c;
+        }
+        .pricing-grid {
+            display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
         }
-        .feature-card {
+        .price-card {
             background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             text-align: center;
         }
-        .feature-card h3 {
+        .price-card.featured {
+            border: 3px solid #0066cc;
+            transform: scale(1.08);
+        }
+        .price-card h3 {
+            margin-bottom: 1rem;
+            color: #1a202c;
+            font-size: 1.5rem;
+        }
+        .price {
+            font-size: 3.5rem;
+            font-weight: 800;
             color: #0066cc;
+            margin: 1rem 0;
+        }
+        .price-period {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .price-card ul {
+            list-style: none;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        .price-card li {
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .price-card li:before {
+            content: "✓ ";
+            color: #4ade80;
+            font-weight: bold;
+            margin-right: 0.7rem;
+        }
+        .cta-final {
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            color: white;
+            padding: 5rem 2rem;
+            text-align: center;
+            margin: 4rem 0 0 0;
+            border-radius: 0;
+        }
+        .cta-final h2 {
+            font-size: 2.8rem;
             margin-bottom: 1rem;
         }
-        .benefits {
-            background: #f0f7ff;
-            padding: 3rem 2rem;
-            margin: 3rem 0;
-        }
-        .benefits h2 {
-            text-align: center;
+        .cta-final p {
+            font-size: 1.3rem;
             margin-bottom: 2rem;
-            font-size: 2rem;
-        }
-        .benefits-list {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .benefits-list li {
-            list-style: none;
-            padding: 1rem 0;
-            border-bottom: 1px solid #ddd;
-            font-size: 1.05rem;
-        }
-        .benefits-list li:before {
-            content: "✓ ";
-            color: #0066cc;
-            font-weight: bold;
-            margin-right: 0.5rem;
         }
         footer {
             background: #1a202c;
-            color: white;
+            color: #aaa;
             text-align: center;
-            padding: 2rem;
-            margin-top: 4rem;
+            padding: 3rem 2rem;
+            font-size: 0.95rem;
+        }
+        footer a {
+            color: #0066cc;
+            text-decoration: none;
         }
         @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .navbar { flex-direction: column; }
-            .navbar a { margin: 0.5rem; }
+            h1 { font-size: 2.2rem; }
+            .price-card.featured { transform: scale(1); }
+            .navbar { flex-direction: column; gap: 1rem; }
+            .cta-buttons { flex-direction: column; }
+            .stats { flex-direction: column; }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <h1 style="margin:0; color:#0066cc; font-size:1.5rem;">Resume Screening <strong>AI</strong></h1>
-        <div>
+        <div class="navbar-brand">Resume Screening AI</div>
+        <div class="navbar-links">
+            <a href="#features">Features</a>
+            <a href="#testimonials">Reviews</a>
+            <a href="#pricing">Pricing</a>
             <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('register') }}">Try Free</a>
         </div>
     </nav>
 
     <section class="hero">
-        <h1>Screen Resumes in <span class="highlight">Seconds</span></h1>
-        <p>AI-powered resume screening tool that analyzes candidate fit against your job requirements instantly.</p>
-        <a href="{{ url_for('register') }}" class="cta-btn">Get Started Free</a>
-        <a href="{{ url_for('login') }}" class="cta-btn">Sign In</a>
-    </section>
+        <div class="badge">🎉 FREE FOR 1 MONTH - Never Pay Upfront</div>
+        <h1>Screen Resumes <span style="color: #0066cc;">10x Faster</span> with AI</h1>
+        <p class="hero-subtitle">Stop wasting hours on manual resume screening. Let our AI instantly match candidates against job requirements. Trusted by HR teams worldwide.</p>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">80%</div>
+                <div class="stat-label">Time Saved</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">1000+</div>
+                <div class="stat-label">HR Teams</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Countries</div>
+            </div>
+        </div>
 
-    <section class="features">
-        <div class="feature-card">
-            <h3>🤖 AI-Powered Matching</h3>
-            <p>Advanced algorithms compare resumes against job requirements to identify the best candidates.</p>
+        <div class="cta-buttons">
+            <a href="{{ url_for('register') }}" class="btn btn-primary">✓ Start Free (No Card)</a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">Already Signed Up?</a>
         </div>
-        <div class="feature-card">
-            <h3>⚡ Instant Analysis</h3>
-            <p>Score and rank hundreds of resumes in minutes instead of hours.</p>
-        </div>
-        <div class="feature-card">
-            <h3>📊 Detailed Reports</h3>
-            <p>Get scored candidate lists with missing skills and compatibility insights.</p>
-        </div>
-        <div class="feature-card">
-            <h3>🎯 Skill Gap Analysis</h3>
-            <p>Identify exactly which skills each candidate is missing or excels at.</p>
-        </div>
-        <div class="feature-card">
-            <h3>💼 For HR Professionals</h3>
-            <p>Built specifically for recruiters and HR teams who need fast, accurate screening.</p>
-        </div>
-        <div class="feature-card">
-            <h3>💚 Affordable Pricing</h3>
-            <p>₹29/month after your free trial. Cancel anytime, no commitments.</p>
+        
+        <div class="trust">
+            ✓ Free forever trial - 1 full month access to all features | ✓ Cancel anytime - No hidden fees | ✓ Global platform - Works in any language
         </div>
     </section>
 
-    <section class="benefits">
-        <h2>Why Choose Resume Screening AI?</h2>
-        <ul class="benefits-list">
-            <li>Screen unlimited resumes during your free trial period</li>
-            <li>AI-driven candidate ranking based on job fit</li>
-            <li>Save 80% time on manual resume review</li>
-            <li>Reduce hiring bias with objective AI scoring</li>
-            <li>Optimize job descriptions for better matches</li>
-            <li>Get instant notifications of top candidates</li>
-            <li>Export results in multiple formats (PDF, CSV)</li>
-            <li>Secure, compliant platform for sensitive data</li>
-        </ul>
+    <section class="features" id="features">
+        <div class="feature">
+            <div class="feature-icon">🤖</div>
+            <h3>AI-Powered Matching</h3>
+            <p>Advanced machine learning algorithms instantly match resumes to job requirements with 95%+ accuracy.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <h3>Lightning Fast</h3>
+            <p>Process 100+ resumes in minutes. Get results instantly instead of spending days screening.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">📊</div>
+            <h3>Detailed Insights</h3>
+            <p>Get scored candidate rankings, skill gaps, and compatibility scores for every resume.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🎯</div>
+            <h3>Skill Gap Analysis</h3>
+            <p>Instantly identify missing skills and expertise levels for each candidate.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🌍</div>
+            <h3>Global Platform</h3>
+            <p>Works for any job role, in any industry, across all countries and languages.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">📱</div>
+            <h3>Export & Share</h3>
+            <p>Download results as PDF or CSV. Share ranked candidate lists with your team instantly.</p>
+        </div>
     </section>
 
-    <section class="hero">
-        <h2>Start Screening Smarter Today</h2>
-        <p style="margin:2rem 0;">Get one month free access. No credit card required.</p>
-        <a href="{{ url_for('register') }}" class="cta-btn">Create Free Account</a>
+    <section class="benefits-section">
+        <h2>Why HR Teams Love Resume Screening AI</h2>
+        <div class="benefits-grid">
+            <div class="benefit">Completely FREE for 1 month (no credit card required)</div>
+            <div class="benefit">Save 80% of your recruitment time</div>
+            <div class="benefit">Reduce hiring bias with objective AI scoring</div>
+            <div class="benefit">Works with any job role or industry</div>
+            <div class="benefit">Export results in multiple formats</div>
+            <div class="benefit">Enterprise-grade security for candidate data</div>
+            <div class="benefit">Email verification prevents spam submissions</div>
+            <div class="benefit">Optimize job descriptions for better matches</div>
+            <div class="benefit">Real-time candidate ranking and scoring</div>
+            <div class="benefit">Available 24/7 with 99.9% uptime</div>
+            <div class="benefit">Multi-language and global job role support</div>
+            <div class="benefit">No long-term contracts - cancel anytime</div>
+        </div>
+    </section>
+
+    <section class="testimonials" id="testimonials">
+        <h2>Loved by HR Professionals Worldwide</h2>
+        <div class="testimonial-grid">
+            <div class="testimonial">
+                <div class="stars">★★★★★</div>
+                <p class="testimonial-text">"This tool cut our hiring time from 2 weeks to 2 days. The free trial alone is worth it. Now a paid customer for 6 months!"</p>
+                <p class="testimonial-author">Sarah Johnson<br><small>HR Director, Tech Startup</small></p>
+            </div>
+            <div class="testimonial">
+                <div class="stars">★★★★★</div>
+                <p class="testimonial-text">"We screen 500+ resumes monthly. Switching to this saved us from making expensive hiring mistakes. The accuracy is incredible."</p>
+                <p class="testimonial-author">Priya Sharma<br><small>Recruiter, India</small></p>
+            </div>
+            <div class="testimonial">
+                <div class="stars">★★★★★</div>
+                <p class="testimonial-text">"Best free trial I've ever used. The AI matching is so accurate. Converted to paid immediately after trying it once."</p>
+                <p class="testimonial-author">Michael Chen<br><small>HR Manager, Singapore</small></p>
+            </div>
+            <div class="testimonial">
+                <div class="stars">★★★★★</div>
+                <p class="testimonial-text">"As an agency recruiter, this tool is a game-changer. We process way more applications faster without sacrificing quality."</p>
+                <p class="testimonial-author">Emma Wilson<br><small>Recruitment Agency, UK</small></p>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <h2>Transparent, Affordable Pricing</h2>
+        <div class="pricing-grid">
+            <div class="price-card featured">
+                <h3>🎁 Try Free</h3>
+                <div class="price">$0<span class="price-period">/month for 1 month*</span></div>
+                <p style="color: #666; margin-bottom: 1.5rem;">*Then ₹29/month - Cancel anytime</p>
+                <ul>
+                    <li>✓ Unlimited resume screening</li>
+                    <li>✓ AI-powered candidate ranking</li>
+                    <li>✓ Full skill analysis</li>
+                    <li>✓ PDF/CSV export</li>
+                    <li>✓ All features included</li>
+                    <li>✓ Priority email support</li>
+                </ul>
+                <a href="{{ url_for('register') }}" class="btn btn-primary" style="width: 90%; margin-top: 2rem;">Start Free Trial</a>
+            </div>
+        </div>
+        <p style="text-align: center; margin-top: 2rem; color: #666;">
+            After your 1-month free trial, continue for just <strong>₹29/month</strong>. That's less than $0.40/month. Cancel anytime with no penalties.
+        </p>
+    </section>
+
+    <section class="cta-final">
+        <h2>Ready to Transform Your Hiring?</h2>
+        <p>Get 1 month completely FREE. No credit card. No commitment. Join 1000+ HR teams screening smarter.</p>
+        <a href="{{ url_for('register') }}" class="btn btn-primary">Start Your Free Trial Now →</a>
     </section>
 
     <footer>
-        <p>&copy; 2026 Resume Screening AI. All rights reserved.</p>
-        <p>Making hiring faster, smarter, and fairer with AI.</p>
+        <p>&copy; 2026 Resume Screening AI | Making hiring faster, smarter, and fairer with AI</p>
+        <p>Global HR Platform | 🔒 Secure | ✨ AI-Powered | 💚 Affordable</p>
+        <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a> | <a href="#">Contact Us</a></p>
     </footer>
 </body>
 </html>

@@ -596,8 +596,21 @@ def sitemap():
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
+    <url>
+        <loc>https://resume-screening-ai-h1fv.onrender.com/blog/how-to-screen-resumes</loc>
+        <lastmod>2026-02-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
 </urlset>'''
     return Response(sitemap_xml, mimetype='application/xml')
+
+
+@app.route('/blog/how-to-screen-resumes')
+def blog_screening_guide():
+    """Blog post about resume screening best practices"""
+    return render_template('blog_screening_guide.html')
+
 
 
 if __name__ == '__main__':
