@@ -47,19 +47,30 @@ logger = logging.getLogger(__name__)
 
 def send_otp_email(recipient, code):
     """Send OTP to the user's email address.
-    This example logs the code; configure SMTP via environment variables to send real mail.
+
+    If SMTP_* environment variables are set the function will attempt to
+    deliver the message via an SMTP server. Otherwise it simply logs the
+    code for development purposes.
     """
-    logger.info(f"Sending OTP {code} to {recipient}")
-    # Uncomment and configure the following for real email delivery:
-    # smtp_host = os.environ.get('SMTP_HOST')
-    # smtp_port = int(os.environ.get('SMTP_PORT', 587))
-    # smtp_user = os.environ.get('SMTP_USER')
-    # smtp_pass = os.environ.get('SMTP_PASS')
-    # message = f"Subject: [Resume AI] Your verification code\n\nYour code is {code}."
-    # with smtplib.SMTP(smtp_host, smtp_port) as s:
-    #     s.starttls()
-    #     s.login(smtp_user, smtp_pass)
-    #     s.sendmail(smtp_user, recipient, message)
+    smtp_host = os.environ.get('SMTP_HOST')
+    smtp_port = int(os.environ.get('SMTP_PORT', 587))
+    smtp_user = os.environ.get('SMTP_USER')
+    smtp_pass = os.environ.get('SMTP_PASS')
+
+    message = f"Subject: [Resume AI] Your verification code\n\nYour code is {code}."
+
+    if smtp_host and smtp_user and smtp_pass:
+        try:
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as s:
+                s.starttls()
+                s.login(smtp_user, smtp_pass)
+                s.sendmail(smtp_user, recipient, message)
+            logger.info(f"OTP {code} sent to {recipient} via SMTP")
+            return
+        except Exception as exc:
+            logger.warning(f"SMTP send failed: {exc}")
+    # fallback log/flash for development
+    logger.info(f"[DEV] OTP {code} for {recipient}: {code}")
 
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
