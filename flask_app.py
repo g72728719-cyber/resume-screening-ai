@@ -60,16 +60,21 @@ def send_otp_email(recipient, code):
     smtp_user = os.environ.get('SMTP_USER')
     smtp_pass = os.environ.get('SMTP_PASS')
 
+    success = False
+    error_msg = None
+
     if smtp_host and smtp_user and smtp_pass:
         try:
+            logger.info(f"Attempting to send OTP to {recipient} via {smtp_host}:{smtp_port}")
+            
             # Create properly formatted MIME email
-            msg = MIMEMultipart()
+            msg = MIMEMultipart('alternative')
             msg['From'] = smtp_user
             msg['To'] = recipient
-            msg['Subject'] = '[Resume Screening AI] Your Verification Code'
+            msg['Subject'] = f'[Resume Screening AI] Your Verification Code: {code}'
             
-            body = f"""
-Hello,
+            # Plain text version
+            text_body = f"""Hello,
 
 Your verification code is: {code}
 
@@ -78,23 +83,53 @@ This code will expire in 10 minutes.
 If you didn't request this code, please ignore this email.
 
 Best regards,
-Resume Screening AI Team
-"""
-            msg.attach(MIMEText(body, 'plain'))
+Resume Screening AI Team"""
             
-            # Send email
-            with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as s:
+            # HTML version for better delivery
+            html_body = f"""<html>
+<body style="font-family: Arial, sans-serif;">
+<p>Hello,</p>
+<p><strong>Your verification code is:</strong></p>
+<h2 style="color: #0066cc; font-size: 24px; letter-spacing: 2px;">{code}</h2>
+<p>This code will expire in 10 minutes.</p>
+<p>If you didn't request this code, please ignore this email.</p>
+<p>Best regards,<br>Resume Screening AI Team</p>
+</body>
+</html>"""
+            
+            msg.attach(MIMEText(text_body, 'plain'))
+            msg.attach(MIMEText(html_body, 'html'))
+            
+            # Send email with timeout
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=15) as s:
                 s.starttls()
                 s.login(smtp_user, smtp_pass)
                 s.sendmail(smtp_user, recipient, msg.as_string())
             
-            logger.info(f"OTP {code} sent to {recipient} via SMTP")
-            return
-        except Exception as exc:
-            logger.error(f"SMTP OTP send failed: {exc}")
+            logger.info(f"✓ OTP {code} successfully sent to {recipient}")
+            success = True
+            
+        except smtplib.SMTPAuthenticationError as e:
+            error_msg = f"SMTP Authentication failed"
+            logger.error(f"SMTP Auth Error: {e}")
+        except smtplib.SMTPException as e:
+            error_msg = f"SMTP Error: {str(e)}"
+            logger.error(f"SMTP Error: {e}")
+        except Exception as e:
+            error_msg = f"Email send failed: {str(e)}"
+            logger.error(f"Unexpected error sending OTP: {e}")
+    else:
+        missing = []
+        if not smtp_host: missing.append('SMTP_HOST')
+        if not smtp_user: missing.append('SMTP_USER')
+        if not smtp_pass: missing.append('SMTP_PASS')
+        logger.warning(f"SMTP not configured. Missing: {', '.join(missing)}")
     
-    # fallback: log for development
-    logger.info(f"[DEV] OTP code {code} for {recipient}")
+    # Log result
+    if success:
+        logger.info(f"[SUCCESS] OTP {code} sent to {recipient}")
+    else:
+        logger.warning(f"[FALLBACK] OTP code {code} for {recipient} - Email delivery attempted. Error: {error_msg}")
 
 
 # Ensure upload folder exists
@@ -319,7 +354,7 @@ def register():
                 session.pop('pending_user_id', None)
                 return redirect(url_for('index'))
             else:
-                flash('Invalid or expired OTP. Please try again.', 'danger')
+                flash('Wrong code, retype', 'danger')
                 return render_template('register.html', show_otp_form=True, pending_email=session.get('pending_email'))
         
         # Initial registration
@@ -592,7 +627,7 @@ def verify():
             session.pop('pending_user_id', None)
             return redirect(url_for('index'))
         else:
-            flash('Invalid or expired code.', 'danger')
+            flash('Wrong code, retype', 'danger')
     return render_template('verify.html')
 
 
@@ -625,6 +660,18 @@ def resend_otp():
 def health():
     """Health check endpoint"""
     return jsonify({'status': 'ok'})
+
+@app.route('/test-email/<email>')
+def test_email(email):
+    """Test email endpoint - send a test OTP to verify SMTP setup"""
+    test_code = '123456'
+    send_otp_email(email, test_code)
+    return jsonify({
+        'status': 'test_email_sent',
+        'email': email,
+        'test_code': test_code,
+        'message': 'Test OTP sent. Check your email inbox and spam folder. Code: 123456'
+    })
 
 # create database tables if they don't exist
 # Flask 3 removed before_first_request; ensure tables are created at import time
