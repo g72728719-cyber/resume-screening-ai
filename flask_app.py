@@ -692,7 +692,7 @@ def contact():
                 # Create email message
                 msg = MIMEMultipart()
                 msg['From'] = smtp_user
-                msg['To'] = 'support@resumescreeningai.com'
+                msg['To'] = 'spprtsmscrnng@gmail.com'
                 msg['Subject'] = f"Contact Form: {subject}"
                 
                 body = f"""
@@ -711,7 +711,7 @@ Message:
                 with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as s:
                     s.starttls()
                     s.login(smtp_user, smtp_pass)
-                    s.sendmail(smtp_user, 'support@resumescreeningai.com', msg.as_string())
+                    s.sendmail(smtp_user, 'spprtsmscrnng@gmail.com', msg.as_string())
                 
                 logger.info(f"Contact form received from {email}")
                 flash('Thank you! We have received your message. We will get back to you soon.', 'success')
