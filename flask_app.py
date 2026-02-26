@@ -673,6 +673,57 @@ def test_email(email):
         'message': 'Test OTP sent. Check your email inbox and spam folder. Code: 123456'
     })
 
+@app.route('/debug-smtp')
+def debug_smtp():
+    """Debug SMTP configuration"""
+    smtp_host = os.environ.get('SMTP_HOST')
+    smtp_port = os.environ.get('SMTP_PORT')
+    smtp_user = os.environ.get('SMTP_USER')
+    smtp_pass = os.environ.get('SMTP_PASS')
+    
+    config_status = {
+        'SMTP_HOST': 'SET' if smtp_host else 'NOT SET',
+        'SMTP_PORT': smtp_port if smtp_port else 'NOT SET',
+        'SMTP_USER': 'SET' if smtp_user else 'NOT SET',
+        'SMTP_PASS': 'SET' if smtp_pass else 'NOT SET',
+        'all_configured': bool(smtp_host and smtp_port and smtp_user and smtp_pass)
+    }
+    
+    # Try to connect to SMTP
+    connection_test = {
+        'status': 'not_tested',
+        'error': None
+    }
+    
+    if config_status['all_configured']:
+        try:
+            logger.info(f"Testing SMTP connection to {smtp_host}:{smtp_port}")
+            with smtplib.SMTP(smtp_host, int(smtp_port), timeout=10) as s:
+                s.starttls()
+                logger.info("STARTTLS successful")
+                s.login(smtp_user, smtp_pass)
+                logger.info("SMTP login successful")
+                connection_test['status'] = 'success'
+                connection_test['message'] = 'SMTP connection and authentication successful!'
+        except smtplib.SMTPAuthenticationError as e:
+            connection_test['status'] = 'auth_failed'
+            connection_test['error'] = f"Authentication failed: {str(e)}"
+            logger.error(f"SMTP Auth failed: {e}")
+        except smtplib.SMTPException as e:
+            connection_test['status'] = 'smtp_error'
+            connection_test['error'] = f"SMTP error: {str(e)}"
+            logger.error(f"SMTP error: {e}")
+        except Exception as e:
+            connection_test['status'] = 'connection_failed'
+            connection_test['error'] = f"Connection failed: {str(e)}"
+            logger.error(f"Connection error: {e}")
+    
+    return jsonify({
+        'smtp_config': config_status,
+        'connection_test': connection_test,
+        'next_step': 'If all_configured is true and connection_test.status is success, then email should work. Try /test-email/your-email@gmail.com'
+    })
+
 # create database tables if they don't exist
 # Flask 3 removed before_first_request; ensure tables are created at import time
 with app.app_context():
