@@ -454,8 +454,8 @@ def health():
     return jsonify({'status': 'ok'})
 
 # create database tables if they don't exist
-@app.before_first_request
-def initialize_database():
+# Flask 3 removed before_first_request; ensure tables are created at import time
+with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
