@@ -2,26 +2,152 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Payment - Resume Screening AI</title>
+    <title>Subscribe - Resume Screening AI</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .payment-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .payment-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .payment-header h1 {
+            color: #0066cc;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        .price-tag {
+            font-size: 3rem;
+            color: #0066cc;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+        .price-tag small {
+            font-size: 1rem;
+            color: #666;
+        }
+        .trial-status {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+            color: #856404;
+        }
+        .trial-status strong {
+            color: #000;
+        }
+        .benefits-list {
+            background: #f0f7ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        .benefits-list h3 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+        .benefits-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .benefits-list li {
+            padding: 0.5rem 0;
+            color: #333;
+        }
+        .benefits-list li:before {
+            content: "✓ ";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        .pay-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 1.5rem 0;
+            transition: all 0.3s ease;
+        }
+        .pay-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,102,204,0.4);
+        }
+        .footer-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <div class="auth-container">
-        <h2>Subscribe</h2>
-        <p>Your trial has expired or you are signing up for full access. ₹29 for one month.</p>
+    <div class="payment-container">
+        <a href="/" class="back-link">← Back to Dashboard</a>
+        
+        <div class="payment-header">
+            <h1>Upgrade to Pro</h1>
+            <p>Continue screening resumes with unlimited access</p>
+        </div>
+        
+        <div class="trial-status">
+            <strong>ℹ️ Your free trial has ended or you're upgrading early.</strong><br>
+            Continue with unlimited resume screening, priority support, and advanced features.
+        </div>
+        
+        <div style="text-align: center;">
+            <div class="price-tag">
+                ₹29<small>/month</small>
+            </div>
+            <p style="color: #666; margin: 0;">That's less than $0.40 per month</p>
+        </div>
+        
+        <div class="benefits-list">
+            <h3>What You Get:</h3>
+            <ul>
+                <li>Unlimited resume screening & analysis</li>
+                <li>AI-powered candidate ranking</li>
+                <li>Full skill analysis & matching</li>
+                <li>PDF & CSV export capabilities</li>
+                <li>24/7 email support</li>
+                <li>Cancel anytime - no hidden fees</li>
+            </ul>
+        </div>
+        
         {% if order %}
-            <!-- Razorpay checkout button will be auto-clicked via script -->
-            <button id="rzp-button" class="analyze-btn">Proceed to Payment</button>
+            <!-- Razorpay checkout -->
+            <button id="rzp-button" class="pay-button">Pay ₹29 to Continue →</button>
             <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
             <script>
                 var options = {
                     "key": "{{ key_id }}",
                     "amount": "{{ order.amount }}",
                     "currency": "INR",
-                    "name": "Resume Screening Subscription",
+                    "name": "Resume Screening AI Pro",
+                    "description": "Monthly subscription ₹29",
                     "order_id": "{{ order.id }}",
                     "handler": function (response){
-                        // post back to payment-success
                         var form = document.createElement('form');
                         form.method = 'POST';
                         form.action = '/payment-success';
@@ -35,6 +161,9 @@
                         });
                         document.body.appendChild(form);
                         form.submit();
+                    },
+                    "theme": {
+                        "color": "#0066cc"
                     }
                 };
                 document.getElementById('rzp-button').onclick = function(e){
@@ -45,9 +174,14 @@
             </script>
         {% else %}
             <form method="post" action="/pay">
-                <button type="submit" class="analyze-btn">Pay ₹29</button>
+                <button type="submit" class="pay-button">Proceed to Payment</button>
             </form>
         {% endif %}
+        
+        <div class="footer-text">
+            <p>🔒 Secure payment powered by <strong>Razorpay</strong></p>
+            <p>Your subscription renews automatically. <a href="/" style="color: #0066cc;">Manage subscription</a></p>
+        </div>
     </div>
 </body>
 </html>

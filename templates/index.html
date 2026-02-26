@@ -66,6 +66,21 @@
             <div class="header-decoration"></div>
         </header>
 
+        <!-- Trial Status Banner -->
+        {% if current_user.is_authenticated and current_user.is_active() %}
+            {% set days_remaining = (current_user.paid_until - now).days %}
+            {% if days_remaining <= 7 %}
+                <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+                    <strong>⏰ Trial Ending Soon!</strong> Only <strong style="font-size: 1.2rem;">{{ days_remaining }} {% if days_remaining == 1 %}day{% else %}days{% endif %}</strong> left. 
+                    <a href="/pay" style="color: white; text-decoration: underline; font-weight: 600;">Subscribe now for ₹29/month</a>
+                </div>
+            {% elif days_remaining <= 30 %}
+                <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+                    <strong>✓ Free Trial Active</strong> - {{ days_remaining }} days remaining. Continue for just <strong>₹29/month</strong> after your trial ends.
+                </div>
+            {% endif %}
+        {% endif %}
+
         <!-- Main Content -->
         <div class="main-grid">
             <!-- Left Panel: Controls -->

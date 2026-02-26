@@ -284,7 +284,7 @@ def index():
     # show landing page to unauthenticated users
     if not current_user.is_authenticated:
         return render_template('landing.html')
-    return render_template('index.html')
+    return render_template('index.html', now=datetime.utcnow())
 
 # ---------- authentication routes ----------------------------------------
 from werkzeug.security import generate_password_hash, check_password_hash
