@@ -329,34 +329,6 @@ from flask import session
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Check if this is OTP verification or initial registration
-        otp_code = request.form.get('otp_code')
-        
-        if otp_code:
-            # Verifying OTP during registration
-            if 'pending_user_id' not in session:
-                flash('Session expired. Please register again.', 'danger')
-                return render_template('register.html')
-            
-            user = User.query.get(session['pending_user_id'])
-            if not user:
-                flash('User not found. Please register again.', 'danger')
-                return render_template('register.html')
-            
-            # Check OTP validity (10 minutes)
-            if user.otp_code == otp_code and user.otp_sent_at and datetime.utcnow() - user.otp_sent_at < timedelta(minutes=10):
-                user.is_verified = True
-                user.otp_code = None
-                user.otp_sent_at = None
-                db.session.commit()
-                login_user(user)
-                flash('Email verified! Welcome to Resume Screening AI.', 'success')
-                session.pop('pending_user_id', None)
-                return redirect(url_for('index'))
-            else:
-                flash('Wrong code, retype', 'danger')
-                return render_template('register.html', show_otp_form=True, pending_email=session.get('pending_email'))
-        
         # Initial registration
         email = request.form.get('email')
         password = request.form.get('password')
@@ -369,28 +341,54 @@ def register():
             flash('Email already registered. Please log in instead.', 'danger')
             return render_template('register.html')
         
-        # Create user with one-month trial
+        # Create user
         user = User(email=email, password_hash=generate_password_hash(password))
         
-        # Generate OTP
-        code = f"{random.randint(0,999999):06d}"
-        user.otp_code = code
+        # Generate simple verification token
+        import secrets
+        token = secrets.token_urlsafe(32)
+        user.otp_code = token  # Reuse otp_code field as verification token
         user.otp_sent_at = datetime.utcnow()
         
         db.session.add(user)
         db.session.commit()
         
-        # Send OTP email
-        send_otp_email(email, code)
+        # Create verification link
+        verification_link = f"{request.host_url.rstrip('/')}/verify-email/{token}"
         
         # Store in session
-        session['pending_user_id'] = user.id
-        session['pending_email'] = email
+        session['pending_user_email'] = email
+        session['verification_link'] = verification_link
         
-        flash(f'Account created! Check your email for the verification code. For development, your code is: {code}', 'info')
-        return render_template('register.html', show_otp_form=True, pending_email=email)
+        flash(f'Account created! A verification link has been generated.', 'info')
+        return render_template('register.html', show_verify_link=True, verification_link=verification_link, email=email)
     
     return render_template('register.html')
+
+@app.route('/verify-email/<token>')
+def verify_email(token):
+    """Verify email using token link"""
+    user = User.query.filter_by(otp_code=token).first()
+    
+    if not user:
+        flash('Invalid verification link. Please register again.', 'danger')
+        return redirect(url_for('register'))
+    
+    # Check if token is expired (24 hours)
+    if user.otp_sent_at and datetime.utcnow() - user.otp_sent_at > timedelta(hours=24):
+        flash('Verification link expired. Please register again.', 'danger')
+        return redirect(url_for('register'))
+    
+    # Verify user
+    user.is_verified = True
+    user.otp_code = None
+    user.otp_sent_at = None
+    db.session.commit()
+    
+    # Log the user in
+    login_user(user)
+    flash('✓ Email verified! Welcome to Resume Screening AI.', 'success')
+    return redirect(url_for('index'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

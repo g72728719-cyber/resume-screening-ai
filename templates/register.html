@@ -102,42 +102,49 @@
             </p>
         </div>
         
-        <!-- OTP Verification Form -->
-        <div id="otpForm" class="form-section {% if not show_otp_form %}hidden{% endif %}">
+        <!-- Verification Link Form -->
+        <div id="verifyForm" class="form-section {% if not show_verify_link %}hidden{% endif %}">
             <div class="success-icon">✓</div>
             
             <h2>Verify Your Email</h2>
             
             <div class="info-box">
-                <strong>Account created!</strong> We've sent a verification code to <strong>{{ pending_email }}</strong>
+                <strong>Account created!</strong> Click the button below to verify your email and access the app.
             </div>
             
-            <form method="post" action="/register">
-                <label for="otp_code"><strong>Enter 6-Digit Code</strong></label><br>
-                <input type="text" id="otp_code" name="otp_code" maxlength="6" required placeholder="000000" inputmode="numeric"><br>
+            {% if verification_link %}
+                <div style="background: #f0f0f0; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; text-align: center;">
+                    <p style="margin-bottom: 1rem; color: #666;">
+                        <strong>Email:</strong> {{ email }}
+                    </p>
+                    <a href="{{ verification_link }}" style="display: inline-block; padding: 1rem 2rem; background: #0066cc; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 1.1rem; transition: all 0.3s ease;">
+                        ✓ Verify Email & Access App
+                    </a>
+                </div>
                 
-                <button type="submit">Verify & Access App</button>
-            </form>
+                <p style="text-align: center; color: #666; font-size: 0.9rem; margin-top: 1rem;">
+                    <strong>Or copy this link:</strong>
+                </p>
+                <div style="background: #f9f9f9; padding: 1rem; border-radius: 4px; word-break: break-all; font-family: monospace; font-size: 0.85rem; color: #333; margin: 1rem 0;">
+                    {{ verification_link }}
+                </div>
+            {% endif %}
             
-            <div class="resend-link">
-                <p>Didn't receive the code?</p>
-                <a href="/resend-otp">Resend verification code</a>
-                <br><br>
-                <a href="/register">← Register with different email</a>
+            <div class="resend-link" style="margin-top: 2rem;">
+                <p style="color: #666;">Link valid for 24 hours.</p>
+                <a href="/register">← Create new account</a>
             </div>
         </div>
     </div>
     
     <script>
-        // Auto-show OTP form if it should be shown (for POST redirects back to page)
-        const otpForm = document.getElementById('otpForm');
+        // Auto-show verify form if it should be shown
+        const verifyForm = document.getElementById('verifyForm');
         const registrationForm = document.getElementById('registrationForm');
         
-        if (otpForm && !otpForm.classList.contains('hidden')) {
+        if (verifyForm && !verifyForm.classList.contains('hidden')) {
             registrationForm.classList.add('hidden');
-            otpForm.classList.remove('hidden');
-            // Auto-focus on OTP input
-            document.getElementById('otp_code').focus();
+            verifyForm.classList.remove('hidden');
         }
     </script>
 </body>
