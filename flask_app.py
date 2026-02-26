@@ -272,7 +272,8 @@ def register():
         db.session.commit()
         send_otp_email(email, code)
         session['pending_user_id'] = user.id
-        flash('Account created. Check your email for a 6‑digit verification code.', 'info')
+        # for development show the code in the flash as well
+        flash(f'Account created. Your verification code is {code}. Check your email.', 'info')
         return redirect(url_for('verify'))
     return render_template('register.html')
 
@@ -530,7 +531,7 @@ def resend_otp():
     user.otp_sent_at = datetime.utcnow()
     db.session.commit()
     send_otp_email(user.email, code)
-    flash('Verification code resent to your email.', 'info')
+    flash(f'Verification code resent. Code: {code}', 'info')
     return redirect(url_for('verify'))
 
 @app.route('/health')
