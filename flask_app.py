@@ -60,20 +60,42 @@ def send_otp_email(recipient, code):
     smtp_user = os.environ.get('SMTP_USER')
     smtp_pass = os.environ.get('SMTP_PASS')
 
-    message = f"Subject: [Resume AI] Your verification code\n\nYour code is {code}."
-
     if smtp_host and smtp_user and smtp_pass:
         try:
+            # Create properly formatted MIME email
+            msg = MIMEMultipart()
+            msg['From'] = smtp_user
+            msg['To'] = recipient
+            msg['Subject'] = '[Resume Screening AI] Your Verification Code'
+            
+            body = f"""
+Hello,
+
+Your verification code is: {code}
+
+This code will expire in 10 minutes.
+
+If you didn't request this code, please ignore this email.
+
+Best regards,
+Resume Screening AI Team
+"""
+            msg.attach(MIMEText(body, 'plain'))
+            
+            # Send email
             with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as s:
                 s.starttls()
                 s.login(smtp_user, smtp_pass)
-                s.sendmail(smtp_user, recipient, message)
+                s.sendmail(smtp_user, recipient, msg.as_string())
+            
             logger.info(f"OTP {code} sent to {recipient} via SMTP")
             return
         except Exception as exc:
-            logger.warning(f"SMTP send failed: {exc}")
-    # fallback log/flash for development
-    logger.info(f"[DEV] OTP {code} for {recipient}: {code}")
+            logger.error(f"SMTP OTP send failed: {exc}")
+    
+    # fallback: log for development
+    logger.info(f"[DEV] OTP code {code} for {recipient}")
+
 
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
